@@ -18,6 +18,7 @@ function Register() {
  const dispatch = useDispatch<AppDispatch>()
 
  const{user,isError,isSuccess,message,isLoading} = useSelector((state:RootState)=>state.auth)
+console.log(user,'user');
 
  useEffect(()=>{
     if(isError){
