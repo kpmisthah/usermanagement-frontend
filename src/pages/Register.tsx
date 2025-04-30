@@ -1,16 +1,38 @@
 import { useState, useEffect } from 'react';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import type { AppDispatch, RootState } from '../app/store';
+import {toast} from 'react-toastify'
 import '../../public/Login.css';
-
-
+import { register,reset } from '../features/auth/authSlice';
+import Spinner from '../components/user/Spinner';
 function Register() {
  const[formData,setFormData] = useState({
-    name:'',
+    username:'',
     email:'',
     password:'',
  })
- const{name,email,password} = formData
-//   const [isSignup, setIsSignup] = useState(false);
+ const{username,email,password} = formData
+
+ const navigate = useNavigate()
+ const dispatch = useDispatch<AppDispatch>()
+
+ const{user,isError,isSuccess,message,isLoading} = useSelector((state:RootState)=>state.auth)
+
+ useEffect(()=>{
+    if(isError){
+        toast.error(message)
+    }
+    if(isSuccess || user){
+        navigate('/')
+    }
+
+    dispatch(reset())
+ },[user,isError,isSuccess,message,navigate,dispatch,isLoading])
+
+ const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+    }
   const [error, setError] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -20,25 +42,16 @@ function Register() {
     setIsLoaded(true);
   }, []);
 
-  const handleSubmit = async () => {
- 
-    
-    try {
-    //   const res = await axios.post(`${API_URL}/auth/${endpoint}`, { username, password });
-    //   const token = res.data.access_token;
-    //   onLogin(token);
-    //   setError('');
-    } catch (err) {
-    //   setError(
-        // isSignup ? 'Signup failed. Username may already exist.' : 'Invalid credentials'
-    //   );
+  const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const userData = {
+        username,email,password
     }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
+    dispatch(register(userData))
+  }
+  if(isLoading){
+    return <Spinner />
+  }
   const onchange = (e:React.ChangeEvent<HTMLInputElement>)=>{
     setFormData((prevState)=>({
         ...prevState,
@@ -64,14 +77,16 @@ function Register() {
         {<input
           type="text"
           className="input"
+          name='username'
           placeholder="Username"
-          value={name}
+          value={username}
           onChange={onchange}
         />}
         <input
           type='email'
           className='input'
           placeholder='email'
+          name='email'
           value={email}
           onChange={onchange}
           />
@@ -80,6 +95,7 @@ function Register() {
             type={showPassword ? "text" : "password"}
             className="input"
             placeholder="Password"
+            name='password'
             value={password}
             onChange={onchange}
           />
@@ -87,7 +103,7 @@ function Register() {
           <button 
             type="button" 
             className="password-toggle-btn"
-            onClick={togglePasswordVisibility}
+            onClick={togglePasswordVisibility }
           >
             {showPassword ? (
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -107,6 +123,7 @@ function Register() {
       {error && <p className="error">{error}</p>}
     </div>
   );
+
 }
 
 export default Register;
