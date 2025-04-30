@@ -15,13 +15,14 @@ function App() {
       <div className='container'>
       <Header />
       <Routes>
-        <Route path='/' element={<Home/>}/>
-        <Route path='/login' element={<Login/>}/>
-        <Route path='/register' element={
+        <Route path='/' element={
           <PrivateRoute>
-          <Register />
+            <Home/>
           </PrivateRoute>
+          
           }/>
+        <Route path='/login' element={<Login/>}/>
+        <Route path='/register' element={<Register />}/>
       </Routes>
       </div>  
     </BrowserRouter>
