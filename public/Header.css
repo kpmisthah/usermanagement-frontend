@@ -35,4 +35,41 @@
    li a:hover {
     color: #38bdf8;
   } 
+  .user-menu {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+  
+  .user-icon {
+    display: flex;
+    align-items: center;
+    color: rgb(0, 0, 0);
+  }
+  
+  .dropdown {
+    position: absolute;
+    top: 30px;
+    right: 0;
+    background-color: #333;
+    border: 1px solid #555;
+    padding: 10px;
+    z-index: 1000;
+    min-width: 180px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  .dropdown button {
+    width: 100%;
+    background: none;
+    color: white;
+    padding: 8px;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .dropdown button:hover {
+    background-color: #444;
+  }
   
