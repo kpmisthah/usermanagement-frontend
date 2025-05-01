@@ -50,8 +50,10 @@ const UserProfile: React.FC = () => {
     if (file) formDataToSend.append('file', file);
 
     try {
+      const token = localStorage.getItem('accessToken');
       const response = await api.put('/user/update', formDataToSend, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'multipart/form-data' ,'Authorization': `Bearer ${token}`},
+        
       });
       dispatch(updateProfile(response.data));
       alert('Profile updated successfully');
