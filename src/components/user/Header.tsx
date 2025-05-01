@@ -1,26 +1,46 @@
-import { FaSignInAlt, FaSignOutAlt, FaUser } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
-import '../../../public/Header.css';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../app/store';
-import { logout, reset } from '../../features/auth/authSlice';
-import { useState } from 'react';
+import { FaSignInAlt, FaSignOutAlt, FaUser } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import "../../../public/Header.css";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../app/store";
+import { logout, reset, updateProfile } from "../../features/auth/authSlice";
+import { useState } from "react";
+import api from "../../services/api";
 
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user,isAuthenticated } = useSelector((state: RootState) => state.auth);
   const [showDropdown, setShowDropdown] = useState(false);
 
   const onLogout = () => {
     dispatch(logout());
     dispatch(reset());
-    navigate('/login');
+    navigate("/login");
   };
 
   const toggleDropdown = () => {
     setShowDropdown((prev) => !prev);
   };
+
+  async function handleFileinput(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await api.put(`/user/update`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      // const newFilepath = res.data.profilePic;
+      dispatch(updateProfile(res.data));
+      alert("profile pircture updated");
+      console.log(res.data);
+    } catch (error) {
+      console.error("File upload failed:", error);
+      alert("Upload failed");
+    }
+  }
 
   return (
     <header className="header">
@@ -28,19 +48,56 @@ const Header = () => {
         <Link to="/">User Management</Link>
       </div>
       <ul>
-        {user ? (
+        {isAuthenticated && user ? (
           <div className="user-menu">
-            <div className="user-icon" onClick={toggleDropdown}>
-              <FaUser />
+            <div
+              className="user-icon"
+              onClick={toggleDropdown}
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              {user.profilePic?  (
+                <img
+                  src={user.profilePic}
+                  alt="Profile"
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    marginRight: "8px",
+                    objectFit: "cover",
+                  }}
+                />
+              ):
+              (
+                <FaUser style={{ marginRight: '8px' }} />
+              )}
               <span style={{ marginLeft: '8px' }}>{user.username}</span>
+
             </div>
 
             {showDropdown && (
               <div className="dropdown">
-                <button onClick={() => alert('Upload feature coming soon')}>
+                <Link to="/profile" style={{ display: 'block', padding: '8px' }}>
+                  Profile
+                </Link>
+                {/* {user.role === 'admin' && (
+                  <Link to="/admin" style={{ display: 'block', padding: '8px' }}>
+                    Admin Dashboard
+                  </Link>
+                )} */}
+                <button
+                  onClick={() => document.getElementById("fileInput")?.click()}
+                  style={{ display: 'block', width: '100%', padding: '8px', textAlign: 'left' }}
+                >
                   Change Profile Picture
                 </button>
-                <button onClick={onLogout}>
+                <input
+                  type="file"
+                  id="fileInput"
+                  style={{ display: "none" }}
+                  onChange={handleFileinput}
+                />
+                <button onClick={onLogout} style={{ display: 'block', width: '100%', padding: '8px', textAlign: 'left' }}>
                   <FaSignOutAlt /> Logout
                 </button>
               </div>

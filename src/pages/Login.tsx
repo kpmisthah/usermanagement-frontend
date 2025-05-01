@@ -46,7 +46,7 @@ function Login() {
       return;
     }
 
-    dispatch(login({username,password}))
+    dispatch(login({username,password})).unwrap()
   };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,7 +84,7 @@ function Login() {
           type="text"
           className="input"
           name="username"
-          placeholder="Email"
+          placeholder="name"
           value={formData.username}
           onChange={onChange}
         />
