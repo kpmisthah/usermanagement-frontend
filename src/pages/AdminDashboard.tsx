@@ -1,21 +1,24 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../app/store';
-import { getAllUsers, createNewUser, editUser, removeUser } from '../features/admin/adminSlice';
+import { useEffect, useState } from 'react'; 
+import { useDispatch, useSelector } from 'react-redux'; 
+import { AppDispatch, RootState } from '../app/store'; 
+import { getAllUsers, createNewUser, editUser, removeUser } from '../features/admin/adminSlice'; 
 import UserTable from '../components/admin/UserTable';
 import UserForm from '../components/admin/UserForm';
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  // Add other properties if needed
+import '../../public/AdminDashboard.css'
+interface User {   
+  id: number;   
+  username: string;   
+  email: string;   
+  role?: string;
 }
+
 
 const AdminDashboard = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { users, loading } = useSelector((state: RootState) => state.admin);
   const [search, setSearch] = useState('');
   const [editingUser, setEditingUser] = useState<User|null>(null);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     dispatch(getAllUsers(search));
@@ -23,6 +26,7 @@ const AdminDashboard = () => {
 
   const handleCreate = async (data: any) => {
     await dispatch(createNewUser(data));
+    setShowForm(false);
   };
 
   const handleEdit = async (id: number, data: any) => {
@@ -31,22 +35,50 @@ const AdminDashboard = () => {
   };
 
   const handleDelete = (id: number) => {
-    dispatch(removeUser(id));
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      dispatch(removeUser(id));
+    }
+  };
+
+  const closeModal = () => {
+    setEditingUser(null);
   };
 
   return (
     <div className="admin-container">
-      <h2>Admin Panel</h2>
-      <input
-        type="text"
-        placeholder="Search by username/email"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <UserForm onSubmit={handleCreate} />
+      <h2>Admin Dashboard</h2>
+      
+      <div className="dashboard-header">
+        <input
+          type="text"
+          placeholder="Search by username or email"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        
+        {!showForm && (
+          <button 
+            className="btn btn-primary" 
+            onClick={() => setShowForm(true)}
+            style={{ marginBottom: '1rem' }}
+          >
+            Add New User
+          </button>
+        )}
+      </div>
+      
+      {showForm && (
+        <UserForm 
+          onSubmit={handleCreate} 
+          onCancel={() => setShowForm(false)}
+        />
+      )}
 
       {loading ? (
-        <p>Loading...</p>
+        <div className="loading">
+          <div className="spinner"></div>
+          <span>Loading user data...</span>
+        </div>
       ) : (
         <UserTable
           users={users}
@@ -60,9 +92,11 @@ const AdminDashboard = () => {
           <UserForm
             user={editingUser}
             onSubmit={(data:any) => handleEdit(editingUser.id, data)}
+            onCancel={closeModal}
           />
         </div>
       )}
+      
     </div>
   );
 };

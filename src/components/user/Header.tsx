@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import "../../../public/Header.css";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../app/store";
-import { logout, reset, updateProfile } from "../../features/auth/authSlice";
+import { reset, updateProfile } from "../../features/auth/authSlice";
+import { logout } from "../../features/auth/authSlice";
 import { useState } from "react";
 import api from "../../services/api";
 
@@ -24,6 +25,8 @@ const Header = () => {
   };
 
   async function handleFileinput(e: React.ChangeEvent<HTMLInputElement>) {
+    console.log("file input kk ethundo");
+    
     const file = e.target.files?.[0];
     if (!file) return;
     const formData = new FormData();
@@ -80,11 +83,6 @@ const Header = () => {
                 <Link to="/profile" style={{ display: 'block', padding: '8px' }}>
                   Profile
                 </Link>
-                {/* {user.role === 'admin' && (
-                  <Link to="/admin" style={{ display: 'block', padding: '8px' }}>
-                    Admin Dashboard
-                  </Link>
-                )} */}
                 <button
                   onClick={() => document.getElementById("fileInput")?.click()}
                   style={{ display: 'block', width: '100%', padding: '8px', textAlign: 'left' }}

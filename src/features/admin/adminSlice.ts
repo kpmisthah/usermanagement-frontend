@@ -5,7 +5,7 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  role: string;
+  role: string; 
 }
 
 interface AdminState {
@@ -20,10 +20,11 @@ const initialState: AdminState = {
   error: null,
 };
 
-// 🔁 Thunks
 
-export const getAllUsers = createAsyncThunk('admin/getUsers', async (search: string = '') => {
-  const res = await api.get(`/admin/get-users?search=${search}`,)
+export const getAllUsers = createAsyncThunk<User[],string|undefined,{rejectValue:string}>('admin/getUsers', async (search) => {
+  const res = await api.get('/admin/get-users',{
+    params:{search}
+  })
   return res.data;
 });
 
@@ -38,7 +39,7 @@ export const editUser = createAsyncThunk('admin/editUser', async ({ id, data }: 
 });
 
 export const removeUser = createAsyncThunk('admin/deleteUser', async (id: number) => {
-  await api.delete(`'/admin/delete/${id}`)
+  await api.delete(`/admin/delete/${id}`)
   return id;
 });
 
@@ -66,7 +67,10 @@ const adminSlice = createSlice({
       .addCase(createNewUser.fulfilled, (state, action) => {
         state.users.push(action.payload);
       })
-
+      .addCase(createNewUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to create user';
+      })
       // Edit user
       .addCase(editUser.fulfilled, (state, action) => {
         const index = state.users.findIndex((u) => u.id === action.payload.id);

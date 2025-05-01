@@ -10,7 +10,7 @@ import Header from './components/user/Header';
 import ProtectedRoute from './routes/PrivateRoute';
 import AdminDashboard from './pages/AdminDashboard';
 import UserProfile from './pages/Userprofile';
-import { checkAuth } from './features/auth/authSlice';
+import { refreshToken } from './features/auth/authSlice';
 import { RootState, AppDispatch } from './app/store';
 
 function App() {
@@ -18,22 +18,22 @@ function App() {
   const { isAuthenticated, user, isLoading } = useSelector((state: RootState) => state.auth);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  useEffect(() => {
-    console.log('App: Dispatching checkAuth');
-    dispatch(checkAuth()).finally(() => {
-      console.log('App: checkAuth completed');
-      setIsInitialLoading(false);
-    });
-  }, [dispatch]);
+  
 
-  console.log('App State:', {
-    isAuthenticated,
-    isLoading,
-    isInitialLoading,
-    userRole: user?.role,
-    user,
-    currentPath: window.location.pathname,
-  });
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        if (isAuthenticated && !user) {
+          await dispatch(refreshToken()).unwrap();
+        }
+      } catch (error) {
+        console.log('Initial refresh failed:', error);
+      } finally {
+        setIsInitialLoading(false);
+      }
+    };
+    initAuth();
+  }, [dispatch, isAuthenticated]);
 
   if (isInitialLoading) {
     return <div>Loading...</div>;
